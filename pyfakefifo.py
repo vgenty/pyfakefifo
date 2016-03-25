@@ -30,11 +30,11 @@ class FakeFifoFactory(object): #It's just a dictionary
     
 class PyFakeFifo(FakeFifoFactory):
     def __init__(self,name='PyFakeFifoFactory'):
-        super().__init__(name)
+        super(PyFakeFifo,self).__init__(name)
         self.streams = ['trig','sn']
         
         
-    def __add_new_class__(key) :
+    def __add_new_class__(self,key) :
         stream   = key[0]
         rootfile = key[1]
 
