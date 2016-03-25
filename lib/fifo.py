@@ -1,5 +1,5 @@
-import numpy as np
-import pandas as pd
+from . import pd
+from . import np
 
 import ROOT
 

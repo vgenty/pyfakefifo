@@ -1,3 +1,6 @@
+from . import pd
+from . import np
+
 from fifo import Fifo
 
 class TrigFifo(Fifo):
@@ -12,4 +15,4 @@ class TrigFifo(Fifo):
             ch_fifo = ev_fifo[i]
             event[self._ch(i)] = np.array([(j,ch_fifo[j]) for j in xrange(ch_fifo.size())])
 
-        self._events.ix[evt_num] = event
+        return event

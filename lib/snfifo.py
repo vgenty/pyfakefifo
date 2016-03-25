@@ -1,3 +1,6 @@
+from . import pd
+from . import np
+
 from fifo import Fifo
 
 class SNFifo(Fifo):
