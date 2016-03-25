@@ -1,7 +1,7 @@
 from fifo import Fifo
 
 class SNFifo(Fifo):
-    
+
     def __load_event__(self,ev_fifo,evt_num):
         event = {}
         
@@ -26,8 +26,7 @@ class SNFifo(Fifo):
             if ch_fifo.size() and time > 0xfff:
                 time = 0
                 
-            assert time <= 0xfff,
-            "Time is 12 bit value, this one is invalid: {}".format(time)
+            assert time <= 0xfff, "Time is 12 bit value, this one is invalid: {}".format(time)
             
             if ptime > time and pch == ch:
                 toffset += 1

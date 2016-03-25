@@ -1,7 +1,7 @@
 from fifo import Fifo
 
 class TrigFifo(Fifo):
-    
+        
     def __load_event__(self,ev_fifo,evt_num):
         event = {}
         event['frame_number'] = ev_fifo.event_frame_number()

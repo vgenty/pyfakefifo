@@ -11,11 +11,13 @@ class Fifo(object):
     __metaclass__ = abc.ABCMeta
 
     def __init__(self,rootfile):
+
         self._load(rootfile)
         self._events = pd.DataFrame(columns=[['frame_number',
                                               'n_words',
                                               'trig_tick']+["ch%d"%i for i in xrange(64)]],
                                     index=np.arange(0,self._nevents))
+        self._name = rootfile
         
     ###Utilities
     
@@ -47,8 +49,7 @@ class Fifo(object):
         ev_fifo = self._chain.tpcfifo_branch
         evt_num = ev_fifo.event_number()
         
-        assert evt_num == event_num,
-        "Offset in recieved event and requested event. {} vs {}".format(evt_num,event_num)            
+        assert evt_num == event_num, "Offset in recieved event and requested event. {} vs {}".format(evt_num,event_num)            
         
         # Fill out event as you please
         self._events.ix[evt_num] = self.__load_event__(ev_fifo,evt_num)
