@@ -1,5 +1,5 @@
 # FEM XMIT
 
-*) Take fake data
-*) Decode data
-*) Display fifo
+* Take fake data
+* Decode data
+* Display fifo
