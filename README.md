@@ -3,6 +3,6 @@
 * Take fake data
   * FEM+XMIT
 * Decode data
-  * https://github.com/larlight/LArLight/tree/trunk/NevisDecoder
+  * [NevisDecoder](https://github.com/vgenty/LArLight/tree/huffman_encoding_SN/NevisDecoder)
 * Display fifo
-  * python view_fifo.py [dir | rootfiles]
+  * ``python view_fifo.py [dir | rootfiles]``
