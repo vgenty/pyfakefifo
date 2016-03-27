@@ -1,11 +1,12 @@
 #thanks taritree
 
 import os,sys,copy
-from PyQt4 import QtGui, QtCore
+from . import QtGui, QtCore
 import pyqtgraph as pg
 import numpy as np
 
 from ..pyfakefifo import PyFakeFifo
+import plotmanager
 
 class FakeFifoDisplay(QtGui.QWidget) :
     def __init__(self,infiles):
@@ -17,9 +18,16 @@ class FakeFifoDisplay(QtGui.QWidget) :
 
         # 1) waveform plotting region
         self.wfplot = pg.PlotItem(name="Readout Plot")
-        self.wf_time_range = pg.LinearRegionItem(values=[0,1500], orientation=pg.LinearRegionItem.Vertical)
-        self.wfplot.addItem( self.wf_time_range )
+        self.wfplot.addLegend()
+        
+        ax = self.wfplot.getAxis('bottom')
+        xStyle = {'color':'#FFFFFF','font-size':'14pt'}
+        ax.setLabel('2 MHz Tick',**xStyle)
 
+        ax = self.wfplot.getAxis('left')
+        yStyle = {'color':'#FFFFFF','font-size':'14pt'}
+        ax.setLabel('ADC',**yStyle)
+        
         self.lastevent = None
         self.newevent = True
 
@@ -38,12 +46,14 @@ class FakeFifoDisplay(QtGui.QWidget) :
         self.layout.addLayout( self.lay_inputs, 1, 0 )
         
         # Navigation
-        self.event = QtGui.QLineEdit("%d"%(126))     # event number
+        self.event = QtGui.QLineEdit("%d"%(126))      # event number
         self.channel = QtGui.QLineEdit("%d"%(10))     # slot number
-        self.chosen_file = QtGui.QLineEdit("aho")     # slot number
+        self.chosen_file = QtGui.QLineEdit("aho")     # chosen_file
         self.prev_event = QtGui.QPushButton("Previous")
         self.next_event = QtGui.QPushButton("Next")
 
+
+        
         # List of input files
         self.file_list = QtGui.QListWidget(self)
         self.file_list.addItems(infiles)
@@ -51,46 +61,82 @@ class FakeFifoDisplay(QtGui.QWidget) :
         # Fifo type
         self.nu_type = QtGui.QRadioButton("Trig")
         self.sn_type = QtGui.QRadioButton("SN")
-        
-        
+
+        # Plotted items
+        self.plottable = QtGui.QTableWidget()
+        self.plottable.setRowCount(0)
+        self.plottable.setColumnCount(5)
+        self.plottable.setHorizontalHeaderItem(0,QtGui.QTableWidgetItem("Stream"))
+        self.plottable.setColumnWidth(0,45)
+        self.plottable.setHorizontalHeaderItem(1,QtGui.QTableWidgetItem("Event"))
+        self.plottable.setColumnWidth(1,45)
+        self.plottable.setHorizontalHeaderItem(2,QtGui.QTableWidgetItem("Frame"))
+        self.plottable.setColumnWidth(2,45)
+        self.plottable.setHorizontalHeaderItem(3,QtGui.QTableWidgetItem("Channel"))
+        self.plottable.setColumnWidth(3,55)
+        self.plottable.setHorizontalHeaderItem(4,QtGui.QTableWidgetItem("File"))
+        self.plottable.setColumnWidth(4,5*45)
+        self.plottable.setSelectionBehavior(QtGui.QTableView.SelectRows);       
+ 
         # add to layout
         self.lay_inputs.addWidget( QtGui.QLabel("File List"), 0, 0 )
         self.lay_inputs.addWidget( self.file_list, 1, 0, -1, 1)
 
-        self.lay_inputs.addWidget( QtGui.QLabel("Chosen File"), 0, 1 )
-        self.lay_inputs.addWidget( self.chosen_file, 1, 1 )
+        self.lay_inputs.addWidget( QtGui.QLabel("File"), 0, 1 )
+        self.lay_inputs.addWidget( self.chosen_file, 0, 2 )
 
-        self.lay_inputs.addWidget( QtGui.QLabel("Event"), 2, 1 )
-        self.lay_inputs.addWidget( self.event, 3, 1 )
+        self.lay_inputs.addWidget( QtGui.QLabel("Event"), 1,1)
+        self.lay_inputs.addWidget( self.event, 1, 2 )
 
-        self.lay_inputs.addWidget( QtGui.QLabel("Channel"), 4, 1 )
-        self.lay_inputs.addWidget( self.channel, 5, 1 )
+        self.lay_inputs.addWidget( QtGui.QLabel("Channel"), 2, 1 )
+        self.lay_inputs.addWidget( self.channel, 2, 2 )
 
-        self.lay_inputs.addWidget( self.sn_type,0,2)
-        self.lay_inputs.addWidget( self.nu_type,1,2)
-
+        self.lay_inputs.addWidget( QtGui.QLabel("Stream"), 0, 3 )
+        self.lay_inputs.addWidget( self.sn_type,1,3)
+        self.lay_inputs.addWidget( self.nu_type,2,3)
+        
+        # self.lay_inputs.addWidget( self.prev_event,3,2)
+        # self.lay_inputs.addWidget( self.next_event,3,3) 
+        
         # axis options
-        self.set_xaxis = QtGui.QPushButton("Plot")
-        self.lay_inputs.addWidget( self.set_xaxis, 0, 6 )
+        self.axis_plot = QtGui.QPushButton("Plot!")
+        self.lay_inputs.addWidget( self.axis_plot, 0, 4 )
 
+        self.axis_clear = QtGui.QPushButton("Clear")
+        self.lay_inputs.addWidget( self.axis_clear, 0, 5 )
+
+        self.axis_arange = QtGui.QPushButton("AutoRange")
+        self.lay_inputs.addWidget( self.axis_arange, 0, 6 )
+
+        self.axis_remove = QtGui.QPushButton("Remove")
+        self.lay_inputs.addWidget( self.axis_remove, 0, 7 )
+
+        self.lay_inputs.addWidget( self.plottable,3,1,1,3 )
+                               
         def on_item_changed(curr, prev):
             self.chosen_file.setText(curr.text())
             
         self.file_list.currentItemChanged.connect(on_item_changed)
 
-        self.set_xaxis.clicked.connect( self.plotData )
+        self.axis_plot.clicked.connect( self.plotData )
+        self.axis_clear.clicked.connect( self.clearData )
+        self.axis_arange.clicked.connect( self.autoRange )
+        self.axis_remove.clicked.connect( self.removeIt )
 
+        self.plottable.clicked.connect(self.toRemove)
 
         # Data factory
         self.pyff = PyFakeFifo()
         
+        # Plot manager
+        self.pmanager = plotmanager.PlotManager("plotmanager",self.plottable,self.wfplot)
         
     def plotData(self):
-        rfile = str(self.chosen_file.text())
-        event = int(self.event.text())
+        rfile   = str(self.chosen_file.text())
+        event   = int(self.event.text())
         channel = int(self.channel.text())
         
-        stream= None;
+        stream=None;
         
         if self.nu_type.isChecked():
             stream = 'trig'
@@ -98,11 +144,33 @@ class FakeFifoDisplay(QtGui.QWidget) :
             stream = 'sn'
 
         assert stream is not None, "you have to choose"
-        print stream,rfile
         
         thisfifo = self.pyff[(stream,rfile)]
 
         theevent = thisfifo.get_event(event)
         theslice = theevent["ch%d"%channel]
-        print theslice
-        self.wfplot.plot(x=theslice[:,0], y=theslice[:,1], symbol='o',pen=(0,2))  
+
+        p = self.wfplot.plot(x=theslice[:,0],
+                             y=theslice[:,1],
+                             symbol='o',
+                             pen=len(self.pmanager.directory),
+                             name='{} ch{}'.format(stream,channel))
+
+        self.pmanager.register(stream,event,rfile,channel,p)
+        self.pmanager.update(stream,event,theevent.frame_number,channel,rfile)
+
+    def clearData(self):
+        self.wfplot.clear()
+
+    def autoRange(self):
+        self.wfplot.autoRange()
+        
+    def toRemove(self,clickedIndex):
+        self.pmanager.set_clicked(clickedIndex)
+       
+    def removeIt(self):
+        self.pmanager.remove()
+
+
+
+        

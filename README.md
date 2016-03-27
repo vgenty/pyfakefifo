@@ -1,4 +1,4 @@
-# FEM XMIT
+# pyFakeFifo
 
 * Take fake data
 * Decode data

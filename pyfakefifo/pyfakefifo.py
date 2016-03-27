@@ -9,7 +9,6 @@ class FakeFifoFactory(object): #It's just a dictionary
     def __init__(self,name='fakefifofactory'):
         self.name = name
         self.storage = {}
-
     
     def __getitem__(self, key): # should just return me an object, right?
 
@@ -47,6 +46,3 @@ class PyFakeFifo(FakeFifoFactory):
             return SNFifo(rootfile)
 
         raise Exception("Failed adding new class")
-
-
-    
