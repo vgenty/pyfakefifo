@@ -18,7 +18,10 @@ class PlotManager(object) :
         cchannel = str(self.plottable.item(row,3).text())
         crfile   = str(self.plottable.item(row,4).text())
 
-        self.viewbox.removeItem(self.directory[(cstream,cevent,crfile,cchannel)])
+        cplot = self.directory[(cstream,cevent,crfile,cchannel)]
+
+        self.viewbox.legend.removeItem("{} ch{}".format(cstream,cchannel))
+        self.viewbox.removeItem(cplot)
         self.directory.pop((cstream,cevent,crfile,cchannel), None)
         self.plottable.removeRow(row)
         
@@ -35,3 +38,7 @@ class PlotManager(object) :
                                 
     def set_clicked(self,clicked):
         self.clicked = clicked
+
+    def cleartable(self):
+        while self.plottable.rowCount() > 0:
+            self.plottable.removeRow(0)

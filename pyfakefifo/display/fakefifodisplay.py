@@ -161,7 +161,9 @@ class FakeFifoDisplay(QtGui.QWidget) :
 
     def clearData(self):
         self.wfplot.clear()
-
+        self.wfplot.legend.scene().removeItem(self.wfplot.legend)
+        self.pmanager.cleartable()
+        
     def autoRange(self):
         self.wfplot.autoRange()
         
