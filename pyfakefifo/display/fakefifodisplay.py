@@ -1,4 +1,6 @@
-#thanks taritree
+#by vic (vgenty@nevis.columbia.edu)
+
+#straight rip of from taritree (taritree@mit.edu)
 
 import os,sys,copy
 from . import QtGui, QtCore
@@ -10,7 +12,9 @@ import plotmanager
 
 class FakeFifoDisplay(QtGui.QWidget) :
     def __init__(self,infiles):
+
         super(FakeFifoDisplay,self).__init__()
+
         self.resize( 1200, 700 )
 
         # Mother canvas for plots
@@ -46,14 +50,16 @@ class FakeFifoDisplay(QtGui.QWidget) :
         self.layout.addLayout( self.lay_inputs, 1, 0 )
         
         # Navigation
-        self.event = QtGui.QLineEdit("%d"%(126))      # event number
+        self.event = QtGui.QLineEdit("%d"%(1))       # event number
         self.channel = QtGui.QLineEdit("%d"%(10))     # slot number
         self.chosen_file = QtGui.QLineEdit("aho")     # chosen_file
-        self.prev_event = QtGui.QPushButton("Previous")
-        self.next_event = QtGui.QPushButton("Next")
 
+        self.prev_event = QtGui.QPushButton("Prev Event") # previous event
+        self.next_event = QtGui.QPushButton("Next Event") # next event
 
-        
+        self.prev_chan = QtGui.QPushButton("Prev Chan")  # previous channel
+        self.next_chan = QtGui.QPushButton("Next Chan") # next channel
+
         # List of input files
         self.file_list = QtGui.QListWidget(self)
         self.file_list.addItems(infiles)
@@ -92,17 +98,20 @@ class FakeFifoDisplay(QtGui.QWidget) :
         self.lay_inputs.addWidget( self.channel, 2, 2 )
 
         self.lay_inputs.addWidget( QtGui.QLabel("Stream"), 0, 3 )
+
         self.lay_inputs.addWidget( self.sn_type,1,3)
         self.lay_inputs.addWidget( self.nu_type,2,3)
         
-        # self.lay_inputs.addWidget( self.prev_event,3,2)
-        # self.lay_inputs.addWidget( self.next_event,3,3) 
+        self.lay_inputs.addWidget( self.prev_event,2,4)
+        self.lay_inputs.addWidget( self.next_event,2,5)
+        self.lay_inputs.addWidget( self.prev_chan,3,4)
+        self.lay_inputs.addWidget( self.next_chan,3,5) 
         
         # axis options
         self.axis_plot = QtGui.QPushButton("Plot!")
         self.lay_inputs.addWidget( self.axis_plot, 0, 4 )
 
-        self.axis_clear = QtGui.QPushButton("Clear")
+        self.axis_clear = QtGui.QPushButton("Clear All")
         self.lay_inputs.addWidget( self.axis_clear, 0, 5 )
 
         self.axis_arange = QtGui.QPushButton("AutoRange")
@@ -125,6 +134,11 @@ class FakeFifoDisplay(QtGui.QWidget) :
 
         self.plottable.clicked.connect(self.toRemove)
 
+        self.prev_event.clicked.connect(self.prevEvent)
+        self.next_event.clicked.connect(self.nextEvent)
+        self.prev_chan.clicked.connect(self.prevChan)
+        self.next_chan.clicked.connect(self.nextChan)
+        
         # Data factory
         self.pyff = PyFakeFifo()
         
@@ -132,6 +146,7 @@ class FakeFifoDisplay(QtGui.QWidget) :
         self.pmanager = plotmanager.PlotManager("plotmanager",self.plottable,self.wfplot)
         
     def plotData(self):
+
         rfile   = str(self.chosen_file.text())
         event   = int(self.event.text())
         channel = int(self.channel.text())
@@ -173,6 +188,51 @@ class FakeFifoDisplay(QtGui.QWidget) :
     def removeIt(self):
         self.pmanager.remove()
 
+    def prevEvent(self):
 
-
+        #casting lame-o
         
+        event   = int(self.event.text())
+        event-=1
+        if event < 0 : event = 0
+        
+        self.event.setText(str(event))
+
+    
+        self.plotData()
+        
+
+    def nextEvent(self):
+
+        #casting lame-o
+        
+        event = int(self.event.text())
+        event += 1
+
+        self.event.setText(str(event))
+
+        self.plotData()
+
+    def prevChan(self):
+
+        #casting lame-o
+        
+        ch = int(self.channel.text())
+        ch -= 1
+
+        if ch < 0 : ch = 0
+        
+        self.channel.setText(str(ch))
+
+        self.plotData()
+        
+    def nextChan(self):
+
+        #casting lame-o
+        
+        ch = int(self.channel.text())
+        ch += 1
+
+        self.channel.setText(str(ch))
+
+        self.plotData()
