@@ -20,7 +20,7 @@ class SNFifo(Fifo):
         
         # time offset counter
         toffset = 0
-
+        print ev_fifo.size()
         for i in xrange(ev_fifo.size()):
             ch_fifo = ev_fifo[i]
             time    = ch_fifo.readout_sample_number_RAW()
@@ -28,7 +28,7 @@ class SNFifo(Fifo):
             
             if ch_fifo.size() and time > 0xfff:
                 time = 0
-                
+            
             assert time <= 0xfff, "Time is 12 bit value, this one is invalid: {}".format(time)
             
             if ptime > time and pch == ch:

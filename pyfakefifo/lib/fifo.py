@@ -1,7 +1,9 @@
 from . import pd
 from . import np
+from . import rt
+from . import ll
 
-import ROOT
+
 
 import abc
 
@@ -25,10 +27,10 @@ class Fifo(object):
         return "ch%d"%i
 
     def _load(self,rootfile) :
-        self._chain = ROOT.TChain("tpcfifo_tree")        
+        self._chain = rt.TChain("tpcfifo_tpcfifo_tree")
         self._chain.AddFile(rootfile)
         self._nevents = self._chain.GetEntries()
-     
+        
     ###Abstracts
     
     @abc.abstractmethod
@@ -46,10 +48,10 @@ class Fifo(object):
         # Get event from TChain
         self._chain.GetEntry(event_num-1) 
         
-        ev_fifo = self._chain.tpcfifo_branch
+        ev_fifo = self._chain.tpcfifo_tpcfifo_branch
         evt_num = ev_fifo.event_number()
         
-        assert evt_num == event_num, "Offset in recieved event and requested event. {} vs {}".format(evt_num,event_num)            
+        # assert evt_num == event_num, "Offset in recieved event and requested event. {} vs {}".format(evt_num,event_num)            
         
         # Fill out event as you please
         self._events.ix[evt_num] = self.__load_event__(ev_fifo,evt_num)
