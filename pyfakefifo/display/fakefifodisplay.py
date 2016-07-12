@@ -50,8 +50,8 @@ class FakeFifoDisplay(QtGui.QWidget) :
         self.layout.addLayout( self.lay_inputs, 1, 0 )
         
         # Navigation
-        self.event = QtGui.QLineEdit("%d"%(1))       # event number
-        self.channel = QtGui.QLineEdit("%d"%(10))     # slot number
+        self.event = QtGui.QLineEdit("%d"%(0))       # event number
+        self.channel = QtGui.QLineEdit("%d"%(16))     # slot number
         self.chosen_file = QtGui.QLineEdit("aho")     # chosen_file
 
         self.prev_event = QtGui.QPushButton("Prev Event") # previous event
@@ -108,7 +108,7 @@ class FakeFifoDisplay(QtGui.QWidget) :
         self.lay_inputs.addWidget( self.next_chan,3,5) 
         
         # axis options
-        self.axis_plot = QtGui.QPushButton("Plot!")
+        self.axis_plot = QtGui.QPushButton("Plot")
         self.lay_inputs.addWidget( self.axis_plot, 0, 4 )
 
         self.axis_clear = QtGui.QPushButton("Clear All")
@@ -134,8 +134,11 @@ class FakeFifoDisplay(QtGui.QWidget) :
 
         self.plottable.clicked.connect(self.toRemove)
 
+        # previous, next event
         self.prev_event.clicked.connect(self.prevEvent)
         self.next_event.clicked.connect(self.nextEvent)
+
+        # previous, next channel
         self.prev_chan.clicked.connect(self.prevChan)
         self.next_chan.clicked.connect(self.nextChan)
         
@@ -173,7 +176,7 @@ class FakeFifoDisplay(QtGui.QWidget) :
 
         self.pmanager.register(stream,event,rfile,channel,p)
         self.pmanager.update(stream,event,theevent.frame_number,channel,rfile)
-
+        
     def clearData(self):
         self.wfplot.clear()
         self.wfplot.legend.scene().removeItem(self.wfplot.legend)
@@ -192,12 +195,11 @@ class FakeFifoDisplay(QtGui.QWidget) :
 
         #casting lame-o
         
-        event   = int(self.event.text())
-        event-=1
+        event  = int(self.event.text())
+        event -=1
         if event < 0 : event = 0
         
         self.event.setText(str(event))
-
     
         self.plotData()
         

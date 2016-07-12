@@ -23,7 +23,6 @@ for d in indirs:
     files = [ os.path.join(d,f) for f in os.listdir(d) if f.endswith(".root") ]
     infiles += files
 
-
 app = QtGui.QApplication([])
 ffdisplay = ffd.FakeFifoDisplay(infiles)
 ffdisplay.show()

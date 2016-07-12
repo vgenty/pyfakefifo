@@ -46,13 +46,12 @@ class Fifo(object):
             return self._events.ix[event_num]
         
         # Get event from TChain
-        self._chain.GetEntry(event_num-1) 
+        self._chain.GetEntry(event_num) 
         
         ev_fifo = self._chain.tpcfifo_tpcfifo_branch
         evt_num = ev_fifo.event_number()
         
         # assert evt_num == event_num, "Offset in recieved event and requested event. {} vs {}".format(evt_num,event_num)            
-        
         # Fill out event as you please
         self._events.ix[evt_num] = self.__load_event__(ev_fifo,evt_num)
 
