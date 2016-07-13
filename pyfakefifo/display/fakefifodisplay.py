@@ -10,6 +10,8 @@ import numpy as np
 from ..pyfakefifo import PyFakeFifo
 import plotmanager
 
+DEBUG = False
+
 class FakeFifoDisplay(QtGui.QWidget) :
     def __init__(self,infiles):
 
@@ -150,6 +152,11 @@ class FakeFifoDisplay(QtGui.QWidget) :
         
     def plotData(self):
 
+        if DEBUG:
+            print "---------------------------"
+            print "|  self.plotData() called  |"
+            print "---------------------------"
+        
         rfile   = str(self.chosen_file.text())
         event   = int(self.event.text())
         channel = int(self.channel.text())
@@ -162,19 +169,35 @@ class FakeFifoDisplay(QtGui.QWidget) :
             stream = 'sn'
 
         assert stream is not None, "you have to choose"
+
+        if DEBUG:
+            print "You chose stream ",stream," and rfile is ",rfile
+
         
         thisfifo = self.pyff[(stream,rfile)]
-
         theevent = thisfifo.get_event(event)
         theslice = theevent["ch%d"%channel]
 
+        if DEBUG:
+            print "thisfifo pointer at ",thisfifo
+            print "event is ",event
+            print "theevent is...\n",theevent
+            print "theslice is...\n",theslice
+        
         p = self.wfplot.plot(x=theslice[:,0],
                              y=theslice[:,1],
                              symbol='o',
                              pen=len(self.pmanager.directory),
                              name='{} ch{}'.format(stream,channel))
 
+        if DEBUG:
+            print "Registering ",stream,event,rfile,channel,p
+        
         self.pmanager.register(stream,event,rfile,channel,p)
+
+        if DEBUG:
+            print "Updating ",stream,event,theevent.frame_number,channel,rfile
+            
         self.pmanager.update(stream,event,theevent.frame_number,channel,rfile)
         
     def clearData(self):
@@ -183,12 +206,21 @@ class FakeFifoDisplay(QtGui.QWidget) :
         self.pmanager.cleartable()
         
     def autoRange(self):
+        if DEBUG:
+            print "autoRange()"
+            
         self.wfplot.autoRange()
         
     def toRemove(self,clickedIndex):
+        if DEBUG:
+            print "clickedIndex is ",clickedIndex
+
         self.pmanager.set_clicked(clickedIndex)
        
     def removeIt(self):
+        if DEBUG:
+            print "removeIt() calling self.pmanager.remove()"
+        
         self.pmanager.remove()
 
     def prevEvent(self):
@@ -198,6 +230,9 @@ class FakeFifoDisplay(QtGui.QWidget) :
         event  = int(self.event.text())
         event -=1
         if event < 0 : event = 0
+
+        if DEBUG:
+            print "Setting text self.event.setText(",str(event),")"
         
         self.event.setText(str(event))
     
@@ -211,6 +246,9 @@ class FakeFifoDisplay(QtGui.QWidget) :
         event = int(self.event.text())
         event += 1
 
+        if DEBUG:
+            print "Setting text self.event.setText(",str(event),")"
+            
         self.event.setText(str(event))
 
         self.plotData()
@@ -223,7 +261,10 @@ class FakeFifoDisplay(QtGui.QWidget) :
         ch -= 1
 
         if ch < 0 : ch = 0
-        
+
+        if DEBUG:
+            print "Setting text self.channel.setText(",str(ch),")"
+            
         self.channel.setText(str(ch))
 
         self.plotData()
@@ -234,7 +275,10 @@ class FakeFifoDisplay(QtGui.QWidget) :
         
         ch = int(self.channel.text())
         ch += 1
-
+        
+        if DEBUG:
+            print "Setting text self.channel.setText(",str(ch),")"
+            
         self.channel.setText(str(ch))
 
         self.plotData()

@@ -1,6 +1,7 @@
 from . import QtGui, QtCore
 
 class PlotManager(object) :
+
     def __init__(self,name,plottable,viewbox):
         self.name = name;
         self.directory = {}
@@ -42,3 +43,4 @@ class PlotManager(object) :
     def cleartable(self):
         while self.plottable.rowCount() > 0:
             self.plottable.removeRow(0)
+        

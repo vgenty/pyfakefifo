@@ -7,6 +7,7 @@ import pyqtgraph as pg
 from pyfakefifo.display import fakefifodisplay as ffd
 
 inputs = sys.argv
+
 def usage() :
     print("\n\t" + '\033[91m' + " view_fifo.py [dir | root files]..." + '\033[0m' + "\n")
 
